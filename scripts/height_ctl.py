@@ -109,7 +109,7 @@ class HeightControl:
             # Measured vz-velocity is stored in self.vz_mv
             # Resultant referent value for motor velocity should be stored in variable mot_speed.
 
-            self.mot_speed_hover = 650.95
+            self.mot_speed_hover = 402.5
             vz_ref = self.pid_z.compute(self.z_sp, self.z_mv)
 
             self.mot_speed = self.mot_speed_hover + \

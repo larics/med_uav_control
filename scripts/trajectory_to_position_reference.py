@@ -12,7 +12,7 @@ from geometry_msgs.msg import Vector3
 class TrajectoryToPositionReference():
 
     def __init__(self):
-        rospy.Subscriber('/multi_dof_trajectory', MultiDOFJointTrajectory, 
+        rospy.Subscriber('trajectory_reference', MultiDOFJointTrajectory, 
             self.trajectory_callback, queue_size=1)
         self.position_ref_pub = rospy.Publisher('pos_ref', Vector3, queue_size=1)
 
