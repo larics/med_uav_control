@@ -123,8 +123,8 @@ class HorizontalControl:
 
 
 
-        rospy.Subscriber('Optitrack', PoseStamped, self.pose_cb)
-        rospy.Subscriber('Optitrack_vel', TwistStamped, self.vel_cb)
+        rospy.Subscriber('optitrack/pose', PoseStamped, self.pose_cb)
+        rospy.Subscriber('optitrack/velocity', TwistStamped, self.vel_cb)
         rospy.Subscriber('vel_ref', Vector3, self.vel_ref_cb)
         rospy.Subscriber('pos_ref', Vector3, self.pos_ref_cb)
         rospy.Subscriber("joy", Joy, self.JoyCallback)

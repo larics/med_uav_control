@@ -25,7 +25,7 @@
 
   <group ns="$(arg namespace)">
     <node pkg="med_uav_control" type="vrpn_transformer.py" name="vrpn_transformer" output="screen">
-      <param name="topic_name" value="/vrpn_client_node/arducopter/pose" />
+      <param name="topic_name" value="/vrpn_client_node/bebop/pose" />
       <param name="median_filter_length" value="5" />
     </node>
   </group>
