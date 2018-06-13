@@ -5,6 +5,7 @@ __author__ = 'thaus'
 import rospy
 from pid import PID
 from geometry_msgs.msg import Vector3, PoseWithCovarianceStamped, PoseStamped, TwistStamped, Twist
+from trajectory_msgs.msg import MultiDOFJointTrajectoryPoint
 from std_msgs.msg import Float32, Empty
 from dynamic_reconfigure.server import  Server
 from urs_solution.cfg import MavXYCtlParamsConfig
@@ -128,6 +129,7 @@ class HorizontalControl:
         rospy.Subscriber('vel_ref', Vector3, self.vel_ref_cb)
         rospy.Subscriber('pos_ref', Vector3, self.pos_ref_cb)
         rospy.Subscriber("joy", Joy, self.JoyCallback)
+	rospy.Subscriber('trajectory_point_ref', MultiDOFJointTrajectoryPoint, self.trajectory_point_ref_cb)
         self.pub_pid_x = rospy.Publisher('pid_x', PIDController, queue_size=1)
         self.pub_pid_vx = rospy.Publisher('pid_vx', PIDController, queue_size=1)
         self.pub_pid_y = rospy.Publisher('pid_y', PIDController, queue_size=1)
@@ -175,10 +177,10 @@ class HorizontalControl:
                 # Resultant referent value for roll and pitch (in mobile coordinate system!)
                 # should be stored in variable roll_sp and pitch_sp
 
-                vx_ref = self.pid_x.compute(self.x_sp, self.x_mv)
-                vy_ref = self.pid_y.compute(self.y_sp, self.y_mv)
-                pitch_sp = self.pid_vx.compute(vx_ref, self.vx_mv)
-                roll_sp = self.pid_vy.compute(vy_ref, self.vy_mv)
+                vx_ref = self.pid_x.compute(self.x_sp, self.x_mv)+self.velocity_ff.x
+                vy_ref = self.pid_y.compute(self.y_sp, self.y_mv)+self.velocity_ff.y
+                pitch_sp = self.pid_vx.compute(vx_ref, self.vx_mv)+self.acceleration_ff.x*0.0
+                roll_sp = self.pid_vy.compute(vy_ref, self.vy_mv)+self.acceleration_ff.y*0.0
 
                 ########################################################
                 ########################################################
@@ -213,7 +215,24 @@ class HorizontalControl:
                 self.pid_vy.reset()
                 self.pid_z.reset()
                 self.pid_yaw.reset()
+                
+    def trajectory_point_ref_cb(self, msg):
+        '''
+        Callback for one trajectory point with speed and acceleration
+        '''
 
+        # translation is vector3, we need point
+        self.x_sp = msg.transforms[0].translation.x
+        self.y_sp = msg.transforms[0].translation.y
+        self.z_sp = msg.transforms[0].translation.z
+
+        # orientation
+        self.orientation_sp = msg.transforms[0].rotation
+
+        # velocity and acceleration
+        self.velocity_ff = msg.velocities[0].linear
+        self.acceleration_ff = msg.accelerations[0].linear
+    
     def pose_cb(self, msg):
         '''
         Pose (6DOF - position and orientation) callback.
