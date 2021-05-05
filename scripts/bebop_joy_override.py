@@ -30,8 +30,10 @@ class BebopJoyOverride:
 
         while not rospy.is_shutdown():
             if self.overrideControl == 0:
+                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override OFF")
                 self.cmdVelPub.publish(self.bebopCmdVel)
             else:
+                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override ON")
                 self.cmdVelPub.publish(self.bebopCmdVelReal)
             r.sleep()
 
@@ -49,12 +51,15 @@ class BebopJoyOverride:
         #self.cmdVelPub.publish(self.bebopCmdVelReal)
 
         if self.joyData.buttons[7] == 1:
+            rospy.loginfo("[BebopJoyOverride] Takeoff")
             self.takeoffPub.publish(Empty())
 
         if self.joyData.buttons[6] == 1:
+            rospy.loginfo("[BebopJoyOverride] Land")
             self.landPub.publish(Empty())
 
         if self.joyData.buttons[9] == 1:
+            rospy.loginfo("[BebopJoyOverride] Reset")
             self.resetPub.publish(Empty())
 
         self.overrideControl = self.joyData.buttons[5]
