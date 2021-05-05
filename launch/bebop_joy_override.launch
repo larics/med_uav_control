@@ -2,6 +2,6 @@
 
     <node name="joy" pkg="joy" type="joy_node" output="screen"/>
 
-    <node name="bebop_joy_override" pkg="med_uav_control" type="bebop_joy_override.py" ns="bebop"/>
+    <node name="bebop_joy_override" pkg="med_uav_control" type="bebop_joy_override.py" ns="bebop" output="screen"/>
 
 </launch>
