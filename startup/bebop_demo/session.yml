@@ -1,7 +1,7 @@
 name: bebop_demo 
 root: ./
 startup_window: bebop_ctl 
-pre_window: source ~/Workspace/bebop_ws/devel/setup.zsh; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lmark/Workspace/bebop_ws/devel/lib/parrot_arsdk 
+pre_window: source ~/Workspace/bebop_ws/devel/setup.zsh; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/Workspace/bebop_ws/devel/lib/parrot_arsdk 
 windows:
   - roscore:
       layout: tiled
@@ -11,8 +11,7 @@ windows:
   - bebop_ctl:
       layout: tiled
       panes:
-        - waitForRos; rosrun med_uav_control bebop_joy_override.py
-        - waitForRos; rosrun joy joy_node
+        - waitForRos; roslaunch med_uav_control bebop_joy_override.launch 
   - image:
       layout: tiled
       panes:
