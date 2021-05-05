@@ -1,7 +1,12 @@
 <launch>
+    
+    <arg name="land_index"      default="6" />
+    <arg name="takeoff_index"   default="7" />
 
     <node name="joy" pkg="joy" type="joy_node" output="screen"/>
-
-    <node name="bebop_joy_override" pkg="med_uav_control" type="bebop_joy_override.py" ns="bebop" output="screen"/>
+    <node name="bebop_joy_override" pkg="med_uav_control" type="bebop_joy_override.py" ns="bebop" output="screen">
+      <param name="bebop_joy/takeoff_index"   value="$(arg takeoff_index)"/>
+      <param name="bebop_joy/land_index"      value="$(arg land_index)"/>
+    </node>
 
 </launch>

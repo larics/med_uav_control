@@ -7,11 +7,13 @@ windows:
       layout: tiled
       panes:
         - roscore
-        - waitForRos; roslaunch bebop_driver bebop_node.launch
+        - waitForRos; roslaunch med_uav_control bebop_driver.launch
   - bebop_ctl:
       layout: tiled
       panes:
-        - waitForRos; roslaunch med_uav_control bebop_joy_override.launch 
+        - waitForRos; roslaunch med_uav_control bebop_joy_override.launch land_index:=1 takeoff_index:=0
+        - waitForRos; sleep 2; rostopic echo /bebop/cmd_vel_real
+        - waitForRos; sleep 2; rostopic echo /bebop/states/common/CommonState/BatteryStateChanged
   - image:
       layout: tiled
       panes:

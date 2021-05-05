@@ -20,6 +20,10 @@ class BebopJoyOverride:
         self.bebopCmdVelReal = Twist() # Publishing to real cmd_vel
         self.bebopCmdVel = Twist() # Subscribing to user cmd_vel
         self.overrideControl = 0
+        
+        # Load joy parameters
+        self.takeoff_index = rospy.get_param("~bebop_joy/takeoff_index")
+        self.land_index = rospy.get_param("~bebop_joy/land_index")
 
         # Subscriber to joystick topic
         rospy.Subscriber("/joy", Joy, self.JoyCallback, queue_size=1)
@@ -50,11 +54,11 @@ class BebopJoyOverride:
         self.bebopCmdVelReal.angular.z = self.joyData.axes[0]
         #self.cmdVelPub.publish(self.bebopCmdVelReal)
 
-        if self.joyData.buttons[7] == 1:
+        if not self.overrideControl == 0 and self.joyData.buttons[self.takeoff_index] == 1:
             rospy.loginfo("[BebopJoyOverride] Takeoff")
             self.takeoffPub.publish(Empty())
 
-        if self.joyData.buttons[6] == 1:
+        if self.joyData.buttons[self.land_index] == 1:
             rospy.loginfo("[BebopJoyOverride] Land")
             self.landPub.publish(Empty())
 
