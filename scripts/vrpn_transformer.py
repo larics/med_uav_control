@@ -19,7 +19,7 @@ class VrpnTransform:
         Initialization of the class.
         '''
         self.medfilt_len = rospy.get_param("~median_filter_length", 5)
-        print "Using median filter of length: ", self.medfilt_len
+        print("Using median filter of length: ", self.medfilt_len)
         self.rate = rospy.get_param("~rate", 200)
         self.Ts = 1.0/float(self.rate)
 

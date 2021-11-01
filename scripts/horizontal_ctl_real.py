@@ -154,9 +154,9 @@ class HorizontalControl:
         '''
 
         while not self.start_flag:
-            print 'Waiting for velocity measurements.'
+            print('Waiting for velocity measurements.')
             rospy.sleep(0.5)
-        print "Starting horizontal control."
+        print("Starting horizontal control.")
 
         while not rospy.is_shutdown():
             self.ros_rate.sleep()

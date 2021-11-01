@@ -46,13 +46,13 @@ class TrajectoryToTrajectoryPoint:
 
 
     def multi_dof_trajectory_cb(self, msg):
-        print "Received a trajectory."
+        print("Received a trajectory.")
         if self.executing_trajectory_flag == False and \
             len(msg.points) > 0:
             self.trajectory = copy.deepcopy(msg)
             self.executing_trajectory_flag = True
         else:
-            print "Currently executing a trajectory."
+            print("Currently executing a trajectory.")
 
 
 if __name__ == '__main__':

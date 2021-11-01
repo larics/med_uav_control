@@ -107,9 +107,9 @@ class AttitudeControl:
         '''
 
         while not self.start_flag:
-            print "Waiting for the first measurement."
+            print("Waiting for the first measurement.")
             rospy.sleep(0.5)
-        print "Starting attitude control."
+        print("Starting attitude control.")
 
         while not rospy.is_shutdown():
             self.ros_rate.sleep()

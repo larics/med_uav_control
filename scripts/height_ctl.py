@@ -93,9 +93,9 @@ class HeightControl:
         '''
 
         while not self.start_flag:
-            print 'Waiting for velocity measurements.'
+            print('Waiting for velocity measurements.')
             rospy.sleep(0.5)
-        print "Starting height control."
+        print("Starting height control.")
 
         while not rospy.is_shutdown():
             self.ros_rate.sleep()
