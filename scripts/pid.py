@@ -1,5 +1,5 @@
 from datetime import datetime
-from urs_solution.msg import PIDController
+from med_uav_control.msg import PIDController
 import rospy
 
 class PID:
