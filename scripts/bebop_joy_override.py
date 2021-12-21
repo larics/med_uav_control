@@ -24,6 +24,7 @@ class BebopJoyOverride:
         # Load joy parameters
         self.takeoff_index = rospy.get_param("~bebop_joy/takeoff_index")
         self.land_index = rospy.get_param("~bebop_joy/land_index")
+        self.override_index = rospy.get_param("~bebop_joy/override_index")
 
         # Subscriber to joystick topic
         rospy.Subscriber("/joy", Joy, self.JoyCallback, queue_size=1)
@@ -66,7 +67,7 @@ class BebopJoyOverride:
             rospy.loginfo("[BebopJoyOverride] Reset")
             self.resetPub.publish(Empty())
 
-        self.overrideControl = self.joyData.buttons[5]
+        self.overrideControl = self.joyData.buttons[self.override_index]
 
     def CmdVelCallback(self, msg):
         self.bebopCmdVel = msg
@@ -79,4 +80,4 @@ if __name__ == "__main__":
 # Takeoff: R2
 # Land: L2
 # Reset: Start
-# Take control: R1 - [5]
+# Take control: R1 - [4]
