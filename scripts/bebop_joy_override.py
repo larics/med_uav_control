@@ -79,7 +79,7 @@ class BebopJoyOverride:
         
         if self.use_sim_bebop:
 
-            rp_scale_fact = 0.15; yaw_scale_fact = 0.05; z_scale_fact = 0.01; 
+            rp_scale_fact = 0.15; yaw_scale_fact = 0.025; z_scale_fact = 0.01; 
 
             reverse = False
             if reverse:

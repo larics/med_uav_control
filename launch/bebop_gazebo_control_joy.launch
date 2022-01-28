@@ -20,6 +20,9 @@
         <node pkg="med_uav_control" type="trajectory_to_position_reference.py" name="trajectory_to_position_reference" output="screen" />
     </group>
 
+    <!-- Use different launch file depending on used controller --> 
+    <!-- Use Futaba or Logitech joystick -->
+    <!-- TODO: Add launch for futaba -->
     <include file="$(find med_uav_control)/launch/bebop_joy_override.launch"/>
 
 </launch>
