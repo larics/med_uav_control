@@ -10,9 +10,9 @@ class BebopJoyOverride:
 
     def __init__(self):
 
-        
+        self.use_sim_bebop = True
         if self.use_sim_bebop: 
-            self.eulerRefPub = rospy.publisher("euler_ref", Vector3, queue_size=1)
+            self.eulerRefPub = rospy.Publisher("euler_ref", Vector3, queue_size=1)
             self.zRefPub = rospy.Publisher("pos_ref", Vector3, queue_size=1)
 
             rospy.Subscriber("euler_ref", Vector3, queue_size=1)
@@ -32,6 +32,7 @@ class BebopJoyOverride:
         self.bebopCmdVelReal = Twist() # Publishing to real cmd_vel
         self.bebopCmdVel = Twist() # Subscribing to user cmd_vel
         self.eulerRef = Vector3()
+        self.posRef = Vector3()
         self.overrideControl = 0
         
         # Load joy parameters
@@ -47,25 +48,61 @@ class BebopJoyOverride:
         r = rospy.Rate(50)
 
         while not rospy.is_shutdown():
-            if self.overrideControl == 0:
-                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override OFF")
-                self.cmdVelPub.publish(self.bebopCmdVel)
+            
+            # if we use real bebop we control Twist and cmdVelpub
+            if not self.use_sim_bebop:
+
+                if self.overrideControl == 0:
+                    rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override OFF")
+                    self.cmdVelPub.publish(self.bebopCmdVel)
+                else:
+                    rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override ON")
+                    self.cmdVelPub.publish(self.bebopCmdVelReal)
+
+            # if we use sim bebop we control eulerRef and poseRef (z)
             else:
-                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override ON")
-                self.cmdVelPub.publish(self.bebopCmdVelReal)
+
+                if self.overrideControl == 0:
+                    rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override OFF")
+                    self.eulerRefPub.publish(self.eulerRef)
+                    self.zRefPub.publish(self.posRef)
+                else:
+                    rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override ON")
+                    self.eulerRefPub.publish(self.eulerRef)
+                    self.zRefPub.publish(self.posRef)
+            
             r.sleep()
 
     def JoyCallback(self, data):
         # Assign data to joy variable
         self.joyData = data
-
+        
         if self.use_sim_bebop:
-            self.eulerRef.x = self.joyData.axes[3]
-            self.eulerRef.y = self.joyData.axes[2]
-            self.eulerRef.z = self.joyData.axes[0]
-            self.poseRef.z = self.joyData.axes[1]
+
+            rp_scale_fact = 0.15; yaw_scale_fact = 0.05; z_scale_fact = 0.01; 
+
+            reverse = False
+            if reverse:
+                reverse_dir = -1
+            else:
+                reverse_dir = 1
+
+
+            self.eulerRef.x = self.joyData.axes[2] * rp_scale_fact * reverse_dir
+            self.eulerRef.y = self.joyData.axes[3] * rp_scale_fact * reverse_dir
+            self.eulerRef.z += self.joyData.axes[0] * yaw_scale_fact
+            self.posRef.z += self.joyData.axes[1] * z_scale_fact
             self.eulerRefPub.publish(self.eulerRef)
-            self.poseRef.publish(self.poseRef)
+            
+            # Test this part? publish current height maybe, to keep it from losing 
+            self.zRefPub.publish(self.posRef)
+
+            debug = True
+            if debug: 
+                rospy.logdebug("eulerRef.x : {}".format(self.eulerRef.x))
+                rospy.logdebug("eulerRef.y : {}".format(self.eulerRef.y))
+                rospy.logdebug("eulerRef.z : {}".format(self.eulerRef.z))
+                rospy.logdebug("posRef.z : {}".format(self.posRef.z))
 
         else:
 
@@ -97,8 +134,12 @@ class BebopJoyOverride:
     def EulerRefCallback(self, msg):
         self.eulerRef = msg
 
+    def posRefCallback(self, msg): 
+        # TODO: Add height and yaw to current value 
+        pass
+
 if __name__ == "__main__":
-    rospy.init_node("BebopJoyOverrideNode")
+    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.DEBUG)
     joyControl = BebopJoyOverride()
     joyControl.run()
 
