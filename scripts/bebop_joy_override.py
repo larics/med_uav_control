@@ -2,15 +2,27 @@
 
 import roslib
 import rospy
-from geometry_msgs.msg import Twist, PoseStamped, TwistStamped
+from geometry_msgs.msg import Twist, PoseStamped, TwistStamped, Vector3
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Empty
 
 class BebopJoyOverride:
 
     def __init__(self):
-        # Publisher to ardrone cmd_vel topic, can be run in namespace
-        self.cmdVelPub = rospy.Publisher("cmd_vel_real", Twist, queue_size=1)
+
+        
+        if self.use_sim_bebop: 
+            self.eulerRefPub = rospy.publisher("euler_ref", Vector3, queue_size=1)
+            self.zRefPub = rospy.Publisher("pos_ref", Vector3, queue_size=1)
+
+            rospy.Subscriber("euler_ref", Vector3, queue_size=1)
+
+        else:
+            # Publisher to ardrone cmd_vel topic, can be run in namespace
+            self.cmdVelPub = rospy.Publisher("cmd_vel_real", Twist, queue_size=1)
+
+            rospy.Subscriber("cmd_vel", Twist, self.CmdVelCallback, queue_size=1)
+
         self.takeoffPub = rospy.Publisher("takeoff", Empty, queue_size=1)
         self.landPub = rospy.Publisher("land", Empty, queue_size=1)
         self.resetPub = rospy.Publisher("reset", Empty, queue_size=1)
@@ -19,6 +31,7 @@ class BebopJoyOverride:
         self.joyData = Joy()
         self.bebopCmdVelReal = Twist() # Publishing to real cmd_vel
         self.bebopCmdVel = Twist() # Subscribing to user cmd_vel
+        self.eulerRef = Vector3()
         self.overrideControl = 0
         
         # Load joy parameters
@@ -28,7 +41,7 @@ class BebopJoyOverride:
 
         # Subscriber to joystick topic
         rospy.Subscriber("/joy", Joy, self.JoyCallback, queue_size=1)
-        rospy.Subscriber("cmd_vel", Twist, self.CmdVelCallback, queue_size=1)
+
 
     def run(self):
         r = rospy.Rate(50)
@@ -46,14 +59,23 @@ class BebopJoyOverride:
         # Assign data to joy variable
         self.joyData = data
 
-        #print self.joyData
+        if self.use_sim_bebop:
+            self.eulerRef.x = self.joyData.axes[3]
+            self.eulerRef.y = self.joyData.axes[2]
+            self.eulerRef.z = self.joyData.axes[0]
+            self.poseRef.z = self.joyData.axes[1]
+            self.eulerRefPub.publish(self.eulerRef)
+            self.poseRef.publish(self.poseRef)
 
-        # Setting joy values to be command values for bebop
-        self.bebopCmdVelReal.linear.x = self.joyData.axes[3]
-        self.bebopCmdVelReal.linear.y = self.joyData.axes[2]
-        self.bebopCmdVelReal.linear.z = self.joyData.axes[1]
-        self.bebopCmdVelReal.angular.z = self.joyData.axes[0]
-        #self.cmdVelPub.publish(self.bebopCmdVelReal)
+        else:
+
+            # Setting joy values to be command values for bebop
+            self.bebopCmdVelReal.linear.x = self.joyData.axes[3]
+            self.bebopCmdVelReal.linear.y = self.joyData.axes[2]
+            self.bebopCmdVelReal.linear.z = self.joyData.axes[1]
+            self.bebopCmdVelReal.angular.z = self.joyData.axes[0]
+            #self.cmdVelPub.publish(self.bebopCmdVelReal)
+
 
         if not self.overrideControl == 0 and self.joyData.buttons[self.takeoff_index] == 1:
             rospy.loginfo("[BebopJoyOverride] Takeoff")
@@ -71,6 +93,9 @@ class BebopJoyOverride:
 
     def CmdVelCallback(self, msg):
         self.bebopCmdVel = msg
+
+    def EulerRefCallback(self, msg):
+        self.eulerRef = msg
 
 if __name__ == "__main__":
     rospy.init_node("BebopJoyOverrideNode")
