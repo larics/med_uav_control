@@ -78,8 +78,9 @@ class BebopJoyOverride:
         self.joyData = data
         
         if self.use_sim_bebop:
-
-            rp_scale_fact = 0.15; yaw_scale_fact = 0.025; z_scale_fact = 0.01; 
+            
+            # Empirically determined scale factors --> larger --> agressive 
+            rp_scale_fact = 0.15; yaw_scale_fact = 0.075; z_scale_fact = 0.01; 
 
             reverse = False
             if reverse:
@@ -88,10 +89,10 @@ class BebopJoyOverride:
                 reverse_dir = 1
 
 
-            self.eulerRef.x = self.joyData.axes[2] * rp_scale_fact * reverse_dir
-            self.eulerRef.y = self.joyData.axes[3] * rp_scale_fact * reverse_dir
-            self.eulerRef.z += self.joyData.axes[0] * yaw_scale_fact
-            self.posRef.z += self.joyData.axes[1] * z_scale_fact
+            self.eulerRef.x     = self.joyData.axes[2]  * rp_scale_fact * reverse_dir
+            self.eulerRef.y     = self.joyData.axes[3]  * rp_scale_fact * reverse_dir
+            self.eulerRef.z     += self.joyData.axes[0] * yaw_scale_fact
+            self.posRef.z       += self.joyData.axes[1] * z_scale_fact
             self.eulerRefPub.publish(self.eulerRef)
             
             # Test this part? publish current height maybe, to keep it from losing 
@@ -139,7 +140,7 @@ class BebopJoyOverride:
         pass
 
 if __name__ == "__main__":
-    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.DEBUG)
+    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.INFO)
     joyControl = BebopJoyOverride()
     joyControl.run()
 

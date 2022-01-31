@@ -5,12 +5,12 @@ import rospy
 from sensor_msgs.msg import Joy
 from hmi_msgs.msg import Int8List
 
-class BebopJoyOverride:
+class FutabaToJoy:
 
     def __init__(self):
 
 
-        rospy.init_node("FutabaToJoyNode", log_level=rospy.DEBUG)
+        rospy.init_node("FutabaToJoyNode", log_level=rospy.INFO)
 
         rospy.Subscriber("/joy_raw", Int8List, self.FutabaCallback)
 
@@ -35,7 +35,7 @@ class BebopJoyOverride:
         # futaba has some inverted channels
         inverted_ch = -1;   
 
-        # axes 
+        # axes, no calibration step
         joy_msg.header = msg.header
         joy_msg.axes[joy_yaw_idx]       = msg.data[yaw_idx]/data    if(abs(msg.data[yaw_idx].data/100.0) > 1.0)     else msg.data[yaw_idx].data/100.0        
         joy_msg.axes[joy_height_idx]    = msg.data[height_idx]/data if(abs(msg.data[height_idx].data/100.0) > 1.0)  else msg.data[height_idx].data/100.0 
@@ -55,8 +55,7 @@ class BebopJoyOverride:
    
 
 if __name__ == "__main__":
-    rospy.init_node("FutabaToJoyNode", log_level=rospy.DEBUG)
-    joyControl = BebopJoyOverride()
+    joyControl = FutabaToJoy()
 
 # Takeoff: R2
 # Land: L2
