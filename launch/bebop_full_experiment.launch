@@ -1,8 +1,10 @@
 <launch>
 
-    <arg name="rc_joy" default="true"/>
+    <arg name="rc_joy" default="false"/>
+    <arg name="logitech_joy" default="false"/>
     <arg name="run_experiment" default="true"/>
     <arg name="record_experiment" default="true"/>
+    <arg name="joy_rate" default="10"/>
 
 	<!-- Launch UAV -->
     <include file="$(find med_uav_description)/launch/gazebo_bebop.launch">
@@ -37,7 +39,7 @@
     </group>
     
     <!-- Run normal joy node for normal joystick -->
-    <group unless="$(arg rc_joy)">
+    <group if="$(arg logitech_joy)">
 
         <node name="joy" pkg="joy" type="joy_node" output="screen">
             <param name="autorepeat_rate" value="$(arg joy_rate)"/>
