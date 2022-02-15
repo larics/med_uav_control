@@ -140,7 +140,7 @@ class BebopJoyOverride:
         pass
 
 if __name__ == "__main__":
-    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.INFO)
+    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.DEBUG)
     joyControl = BebopJoyOverride()
     joyControl.run()
 
