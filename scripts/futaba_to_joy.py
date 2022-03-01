@@ -37,16 +37,16 @@ class FutabaToJoy:
 
         # axes, no calibration step
         joy_msg.header = msg.header
-        joy_msg.axes[joy_yaw_idx]       = msg.data[yaw_idx]/data    if(abs(msg.data[yaw_idx].data/100.0) > 1.0)     else msg.data[yaw_idx].data/100.0        
-        joy_msg.axes[joy_height_idx]    = msg.data[height_idx]/data if(abs(msg.data[height_idx].data/100.0) > 1.0)  else msg.data[height_idx].data/100.0 
-        joy_msg.axes[joy_pitch_idx]     = msg.data[pitch_idx]/data  if(abs(msg.data[pitch_idx].data/100.0) > 1.0)   else msg.data[pitch_idx].data/100.0
-        joy_msg.axes[joy_roll_idx]      = msg.data[roll_idx]/data   if(abs(msg.data[roll_idx].data/100.0) > 1.0)    else msg.data[roll_idx].data/100.0
+        joy_msg.axes[joy_yaw_idx]       = msg.data[yaw_idx]/abs(msg.data[yaw_idx])          if(abs(msg.data[yaw_idx].data/100.0) > 1.0)     else msg.data[yaw_idx].data/100.0        
+        joy_msg.axes[joy_height_idx]    = msg.data[height_idx]/abs(msg.data[height_idx])    if(abs(msg.data[height_idx].data/100.0) > 1.0)  else msg.data[height_idx].data/100.0 
+        joy_msg.axes[joy_pitch_idx]     = msg.data[pitch_idx]/abs(msg.data[pitch_idx])      if(abs(msg.data[pitch_idx].data/100.0) > 1.0)   else msg.data[pitch_idx].data/100.0
+        joy_msg.axes[joy_roll_idx]      = msg.data[roll_idx]/abs(msg.data[roll_idx])        if(abs(msg.data[roll_idx].data/100.0) > 1.0)    else msg.data[roll_idx].data/100.0
         
         # buttons
         joy_msg.buttons[0] = msg.data[4].data
 
         # Some channels are inverted (pitch, yaw)
-        joy_msg.axes[joy_yaw_idx] *= inverted_ch; 
+        joy_msg.axes[joy_yaw_idx]   *= inverted_ch; 
         joy_msg.axes[joy_pitch_idx] *= inverted_ch; 
 
         rospy.logdebug(joy_msg)
