@@ -5,7 +5,7 @@ import rospy
 import rosbag
 import datetime
 import copy
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Time
 from sensor_msgs.msg import Joy
 from nav_msgs.msg import Odometry
 
@@ -22,54 +22,36 @@ class Observer:
 
     def __init__(self): 
 
-        rospy.init_node("observer", log_level=rospy.INFO)
 
-        # Publishers
-        self.duration_pub = rospy.Publisher("/duration", Float32, queue_size=1)
+
 
         # Subscribers
         rospy.Subscriber("/bebop/odometry", Odometry, self.OdometryCallback, queue_size=1)
-        rospy.Subscriber("/joy", Joy, self.JoyCallback, queue_size=1)
-        rospy.Subscriber("/duration", Float32, self.DurationCallback, queue_size=1)
+        self.end_time_pub   = rospy.Publisher("/end_time",    Time, queue_size=1)
+        self.start_time_pub = rospy.Publisher("/start_time",  Time, queue_size=1)
+
 
         self.current_pos_x = 0; self.current_pos_y = 0; 
         # Define goal pose
         self.goal_pos_x = 9.0
-        self.duration_t_sec = 120
+        self.timeout = 120
         # Y limits 
-        self.upper_limit = -1.0;  self.lower_limit = -3.0;
+        self.y_upper_limit = -1.0
+        self.y_lower_limit = -3.0
+        self.x_upper_limit = 1.0 
+        self.x_lower_limit = -1.0
         # Start time
         self.start_time = rospy.Time.now().to_sec(); now = datetime.datetime.now(); 
-        # Current date
-        date = "{}-{}-{}-{}-{}".format(now.day, now.month, now.year, now.hour, now.minute)
 
-        sleep_time = 10
+
+        sleep_time = 5
         rospy.sleep(sleep_time)
-        # Bag name
-        self.bag = rosbag.Bag('/home/developer/catkin_ws/src/med_uav_control/experiments/{}.bag'.format(date), 'w')
         # Current rate
-        self.rate = rospy.Rate(5)
+        self.rate = rospy.Rate(10)
 
-        self.odom_recv = False; self.joy_recv = False
+        self.odom_recv = False; 
+        self.start_published = False; self.end_published = False
         self.initialized = True
-
-        self.duration_pub.publish(Float32(0.0))
-
-    
-
-    def DurationCallback(self, msg):
-
-        self.bag.write("/duration", msg)
-
-    
-    def JoyCallback(self, msg):
-
-        self.joy_recv = True
-
-        self.joy_msg = Joy()
-        self.joy_msg.header = msg.header
-        self.joy_msg.axes = msg.axes
-        self.joy_msg.buttons = msg.buttons
 
 
     def OdometryCallback(self, msg): 
@@ -92,8 +74,7 @@ class Observer:
             return False
 
     def run(self): 
-        
-        
+                
         rospy.loginfo("Entered run!")
 
         if not self.initialized:
@@ -103,45 +84,40 @@ class Observer:
         
             while True: 
                 
+                # Start condition
+                start_condition = True if (self.in_range(self.current_pos_x, self.x_upper_limit, self.x_lower_limit) and self.current_pos_y > 0) else False
+                
                 # Check if goal line has been surpassed
-                end_condition = True if (self.in_range(self.current_pos_y, self.upper_limit, self.lower_limit) and self.current_pos_x > self.goal_pos_x) else False
+                end_condition = True if (self.in_range(self.current_pos_y, self.y_upper_limit, self.y_lower_limit) and self.current_pos_x > self.goal_pos_x) else False
 
                 # Check how much time has passed
                 time_elapsed = rospy.Time.now().to_sec() - self.start_time
 
-                rospy.loginfo("end_condition: {}".format(end_condition))
+                rospy.logdebug("start_condition: {}".format(start_condition))
+                rospy.logdebug("end_condition: {}".format(end_condition))
 
-                # Check end_condition
-                if (not end_condition):
-
-                    if time_elapsed > self.duration_t_sec:
-                        timeout = True
-                    else:
-                        timeout = False
+                if start_condition and not self.start_published: 
                     
-                    # Write odometry message and joy message to bag 
-                    if self.odom_recv and self.joy_recv:
-                        odom_msg = copy.deepcopy(self.odom_msg); joy_msg = copy.deepcopy(self.joy_msg)
-                        self.bag.write("/bebop/odometry", odom_msg)
-                        rospy.loginfo("...")
-                        self.bag.write("/joy", joy_msg)
+                    current_time_msg = Time()
+                    current_time_msg.data = rospy.Time.now()
+                    self.start_time_pub.publish(current_time_msg)
+                    self.start_published = True
 
-                else:
+                if end_condition and not self.end_published: 
 
-                    if timeout:
-                        successful = False
-                        
-                        rospy.loginfo("Timeout reached!")
+                    current_time_msg = Time()
+                    current_time_msg.data = rospy.Time.now()
+                    self.end_time_pub.publish(current_time_msg)
+                    self.end_published = True
 
-                    else:
-                        successful = True
+                if (time_elapsed > self.timeout) or end_condition: 
 
-                        rospy.loginfo("Labyrinth has been finished!")
-                        rospy.loginfo("Duration is: {} secs".format(time_elapsed))
+                    exit()
 
-                        self.duration_pub.publish(Float32(time_elapsed))
+                
 
-                    break
+
+
 
                 self.rate.sleep()
 
@@ -153,6 +129,7 @@ class Observer:
 
 if __name__ == "__main__": 
 
+    rospy.init_node("observer", log_level=rospy.DEBUG)
     obs = Observer()
     obs.run()
 

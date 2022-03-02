@@ -80,7 +80,7 @@ class BebopJoyOverride:
         if self.use_sim_bebop:
             
             # Empirically determined scale factors --> larger --> agressive 
-            rp_scale_fact = 0.15; yaw_scale_fact = 0.075; z_scale_fact = 0.01; 
+            rp_scale_fact = 0.15; yaw_scale_fact = 0.06; z_scale_fact = 0.01; 
 
             reverse = False
             if reverse:
@@ -140,7 +140,7 @@ class BebopJoyOverride:
         pass
 
 if __name__ == "__main__":
-    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.DEBUG)
+    rospy.init_node("BebopJoyOverrideNode", log_level=rospy.INFO)
     joyControl = BebopJoyOverride()
     joyControl.run()
 

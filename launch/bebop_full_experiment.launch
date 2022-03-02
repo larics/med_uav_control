@@ -8,6 +8,8 @@
 
 	<!-- Launch UAV -->
     <include file="$(find med_uav_description)/launch/gazebo_bebop.launch">
+        <arg name="x" default="0.0"/>
+        <arg name="y" default="-1.5"/>
         <arg name="wind_force" value="0.0"/>
         <arg name="wind_start" default="5.0"/>
         <arg name="wind_duration" default="10.0"/>
@@ -48,10 +50,10 @@
     </group>
 
     <!-- Record bag for experiment -->
-    <!--group if="$(arg run_experiment)">
-        <node name="observer" pkg="med_uav_control" type="observer.py" output="screen"></node>
+    <!--group if="$(arg run_experiment)"!-->
+    <node name="observer" pkg="med_uav_control" type="observer.py" output="screen"></node>
 
-    </group-->
+    <!--/group!-->
 
     <!-- RUN FPV -->
     <!--node name="fpv_node" pkg="rqt_image_view" type="rqt_image_view" output="screen"/-->
@@ -59,7 +61,7 @@
     <include file="$(find med_uav_control)/launch/bebop_joy_override.launch"/>
 
     <node pkg="rosbag" type="record" name="record_experiment"
-       args="record -o /home/developer/catkin_ws/src/med_uav_control/experiments/exp /bebop/odometry /joy /duration" if="$(arg record_experiment)" />
+       args="record -o /home/developer/catkin_ws/src/med_uav_control/experiments/exp /bebop/odometry /joy /start_time /end_time" if="$(arg record_experiment)" />
 
     
 </launch>
