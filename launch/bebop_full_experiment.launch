@@ -10,6 +10,7 @@
     <include file="$(find med_uav_description)/launch/gazebo_bebop.launch">
         <arg name="x" default="0.0"/>
         <arg name="y" default="-1.5"/>
+        <arg name="yaw" default="1.57"/>
         <arg name="wind_force" value="0.0"/>
         <arg name="wind_start" default="5.0"/>
         <arg name="wind_duration" default="10.0"/>
