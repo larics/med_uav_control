@@ -5,12 +5,14 @@
     <arg name="run_experiment" default="true"/>
     <arg name="record_experiment" default="true"/>
     <arg name="joy_rate" default="10"/>
+    <arg name="user_id" default="0"/>
+    <arg name="run" default="0"/>
 
 	<!-- Launch UAV -->
     <include file="$(find med_uav_description)/launch/gazebo_bebop.launch">
         <arg name="x" default="0.0"/>
         <arg name="y" default="-1.5"/>
-        <arg name="yaw" default="1.57"/>
+        <arg name="yaw" default="0.0"/>
         <arg name="wind_force" value="0.0"/>
         <arg name="wind_start" default="5.0"/>
         <arg name="wind_duration" default="10.0"/>
@@ -62,7 +64,7 @@
     <include file="$(find med_uav_control)/launch/bebop_joy_override.launch"/>
 
     <node pkg="rosbag" type="record" name="record_experiment"
-       args="record -o /home/developer/catkin_ws/src/med_uav_control/experiments/exp /bebop/odometry /joy /start_time /end_time" if="$(arg record_experiment)" />
+       args="record -o /home/developer/catkin_ws/src/med_uav_control/experiments/$(arg user_id)_$(arg run) /bebop/odometry /joy /start_time /end_time /euler_ref /pos_ref" if="$(arg record_experiment)" />
 
     
 </launch>
