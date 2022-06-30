@@ -18,6 +18,7 @@ class BebopJoyOverride:
         # Initialize joy and cmd_vel variables
         self.joyData = Joy()
         self.hpeJoyData = Joy()
+        self.hpeJoyData.axes = [0, 0, 0, 0]
         self.bebopCmdVelReal = Twist() # Publishing to real cmd_vel
         self.bebopCmdVel = Twist() # Subscribing to user cmd_vel
         self.overrideControl = 0
