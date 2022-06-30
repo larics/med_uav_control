@@ -17,9 +17,9 @@ class BebopJoyOverride:
 
         # Initialize joy and cmd_vel variables
         self.joyData = Joy()
+        self.hpeJoyData = Joy()
         self.bebopCmdVelReal = Twist() # Publishing to real cmd_vel
         self.bebopCmdVel = Twist() # Subscribing to user cmd_vel
-        self.hpeCmdVel = Twist()    
         self.overrideControl = 0
         self.hpeOverrideControl = 0
         
@@ -31,10 +31,9 @@ class BebopJoyOverride:
 
         # Subscriber to joystick topic
         rospy.Subscriber("/joy", Joy, self.JoyCallback, queue_size=1)
+        rospy.Subscriber("/hpe_joy", Joy, self.JoyCallback, queue_size=1)
         rospy.Subscriber("cmd_vel", Twist, self.CmdVelCallback, queue_size=1)
 
-        # Subscriber to hpe cmd_vel topic
-        rospy.Subscriber("hpe_cmd_vel", Twist, self.HpeCmdVelCallback, queue_size=1)
 
     def run(self):
         r = rospy.Rate(50)
@@ -52,12 +51,19 @@ class BebopJoyOverride:
 
             r.sleep()
 
+    def hpeJoyCallback(self, data): 
+        self.hpeJoyData = data
+
     def JoyCallback(self, data):
         # Assign data to joy variable
         self.joyData = data
 
         # Scale fact for slower control 
         scale_fact = 0.25
+
+        # If hpe_override button pressed, take cmds from hpe!
+        if self.hpeOverrideControl: 
+            self.joyData.axes = self.hpeJoyData.axes 
 
         # Setting joy values to be command values for bebop
         self.bebopCmdVelReal.linear.x = self.joyData.axes[3] * scale_fact
