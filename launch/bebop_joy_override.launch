@@ -1,7 +1,7 @@
 <launch>
     
     <arg name="land_index"      default="6" />
-    <arg name="takeoff_index"   default="7" />
+    <arg name="takeoff_index"   default="1" />
     <arg name="override_index"  default="4" />
     <arg name="hpe_override_index" default="5" />
 

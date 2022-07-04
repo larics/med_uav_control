@@ -19,10 +19,11 @@ class BebopJoyOverride:
         self.joyData = Joy()
         self.hpeJoyData = Joy()
         self.hpeJoyData.axes = [0, 0, 0, 0]
-        self.bebopCmdVelReal = Twist() # Publishing to real cmd_vel
-        self.bebopCmdVel = Twist() # Subscribing to user cmd_vel
+        self.hpeCmdVel = Twist() # Publishing to real cmd_vel
+        self.bebopCmdVelReal = Twist() # Subscribing to user cmd_vel
         self.overrideControl = 0
         self.hpeOverrideControl = 0
+        self.scale_fact = 0.25
         
         # Load joy parameters
         self.takeoff_index = rospy.get_param("~bebop_joy/takeoff_index")
@@ -32,7 +33,7 @@ class BebopJoyOverride:
 
         # Subscriber to joystick topic
         rospy.Subscriber("/joy", Joy, self.JoyCallback, queue_size=1)
-        rospy.Subscriber("/hpe_joy", Joy, self.JoyCallback, queue_size=1)
+        rospy.Subscriber("/hpe_joy", Joy, self.hpeJoyCallback, queue_size=1)
         rospy.Subscriber("cmd_vel", Twist, self.CmdVelCallback, queue_size=1)
 
 
@@ -41,36 +42,36 @@ class BebopJoyOverride:
 
         while not rospy.is_shutdown():
             if self.overrideControl == 0:
-                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override OFF")
-                self.cmdVelPub.publish(self.bebopCmdVel)
+                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] hpe ON")
+                self.cmdVelPub.publish(self.hpeCmdVel)
             else:
-                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] override ON")
+                rospy.loginfo_throttle(5.0, "[BebopJoyOverride] joystick ON")
                 self.cmdVelPub.publish(self.bebopCmdVelReal)
 
-            if self.hpeOverrideControl == 1.0: 
-                rospy.loginfo_throttle(1.0, "[BebopJoyOverride] override HPE-ON")
+
 
             r.sleep()
 
     def hpeJoyCallback(self, data): 
         self.hpeJoyData = data
 
+        #rospy.loginfo("Entered callback!")
+         # Setting joy values to be command values for bebop
+        self.hpeCmdVel.linear.x = self.hpeJoyData.axes[3] * self.scale_fact
+        self.hpeCmdVel.linear.y = self.hpeJoyData.axes[2] * self.scale_fact
+        self.hpeCmdVel.linear.z = self.hpeJoyData.axes[1] * self.scale_fact
+        self.hpeCmdVel.angular.z = self.hpeJoyData.axes[0] * self.scale_fact
+
+
     def JoyCallback(self, data):
         # Assign data to joy variable
         self.joyData = data
 
-        # Scale fact for slower control 
-        scale_fact = 0.25
-
-        # If hpe_override button pressed, take cmds from hpe!
-        if self.hpeOverrideControl: 
-            self.joyData.axes = self.hpeJoyData.axes 
-
         # Setting joy values to be command values for bebop
-        self.bebopCmdVelReal.linear.x = self.joyData.axes[3] * scale_fact
-        self.bebopCmdVelReal.linear.y = self.joyData.axes[2] * scale_fact
-        self.bebopCmdVelReal.linear.z = self.joyData.axes[1] * scale_fact
-        self.bebopCmdVelReal.angular.z = self.joyData.axes[0] * scale_fact
+        self.bebopCmdVelReal.linear.x = self.joyData.axes[3] * self.scale_fact
+        self.bebopCmdVelReal.linear.y = self.joyData.axes[2] * self.scale_fact
+        self.bebopCmdVelReal.linear.z = self.joyData.axes[1] * self.scale_fact
+        self.bebopCmdVelReal.angular.z = self.joyData.axes[0] * self.scale_fact
 
         if not self.overrideControl == 0 and self.joyData.buttons[self.takeoff_index] == 1:
             rospy.loginfo("[BebopJoyOverride] Takeoff")
@@ -84,24 +85,12 @@ class BebopJoyOverride:
             rospy.loginfo("[BebopJoyOverride] Reset")
             self.resetPub.publish(Empty())
 
-        # If HPE override button press, send command from HPE
-        if self.hpeOverrideControl == 1: 
-            rospy.loginfo("[BebopJoyOverride] Hpe control active!")
-            self.cmdVelPub.publish(self.hpeCmdVel)
-        # If not, send command from joy
-        else:
-            rospy.loginfo("[BebopJoyOverride] Joy control active!")
-            self.cmdVelPub.publish(self.bebopCmdVel)
-
         # Override flags
         self.overrideControl = self.joyData.buttons[self.override_index]
-        self.hpeOverrideControl = self.joyData.buttons[self.hpe_override_index]
 
     def CmdVelCallback(self, msg):
         self.bebopCmdVel = msg
 
-    def HpeCmdVelCallback(self, msg): 
-        self.hpeCmdVel = msg
 
 if __name__ == "__main__":
     rospy.init_node("BebopJoyOverrideNode")
