@@ -23,8 +23,6 @@ class Observer:
     def __init__(self): 
 
 
-
-
         # Subscribers
         rospy.Subscriber("/bebop/odometry", Odometry, self.OdometryCallback, queue_size=1)
         self.end_time_pub   = rospy.Publisher("/end_time",    Time, queue_size=1)
@@ -40,15 +38,16 @@ class Observer:
         self.y_lower_limit = -3.0
         self.x_upper_limit = 1.0 
         self.x_lower_limit = -1.0
+        
         # Start time
         self.start_time = rospy.Time.now().to_sec(); now = datetime.datetime.now(); 
 
 
         sleep_time = 5
         rospy.sleep(sleep_time)
+
         # Current rate
         self.rate = rospy.Rate(10)
-
         self.odom_recv = False; 
         self.start_published = False; self.end_published = False
         self.initialized = True
@@ -93,8 +92,11 @@ class Observer:
                 # Check how much time has passed
                 time_elapsed = rospy.Time.now().to_sec() - self.start_time
 
-                rospy.logdebug("start_condition: {}".format(start_condition))
-                rospy.logdebug("end_condition: {}".format(end_condition))
+                #rospy.logdebug("start_condition: {}".format(start_condition))
+                #rospy.logdebug("end_condition: {}".format(end_condition))
+                
+                rospy.logdebug("elapsed: {}".format(time_elapsed))
+                rospy.logdebug("{}".format(convert(time_elapsed)))
 
                 if start_condition and not self.start_published: 
                     
@@ -110,27 +112,34 @@ class Observer:
                     self.end_time_pub.publish(current_time_msg)
                     self.end_published = True
 
+                    # TODO: Add elapsed time for the counter 
+
                 if (time_elapsed > self.timeout) or end_condition: 
 
                     exit()
 
-                
-
-
-
-
                 self.rate.sleep()
-
 
             self.bag.close()
                 
             exit()              
-                  
+
+
+def convert(seconds):
+    seconds = seconds % (24 * 3600)
+    hour = seconds // 3600
+    seconds %= 3600
+    minutes = seconds // 60
+    seconds %= 60
+     
+    return "%d:%02d:%02d" % (hour, minutes, seconds)
+
 
 if __name__ == "__main__": 
 
     rospy.init_node("observer", log_level=rospy.DEBUG)
     obs = Observer()
     obs.run()
+
 
 

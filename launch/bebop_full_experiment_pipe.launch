@@ -9,16 +9,24 @@
     <arg name="run" default="0"/>
 
 	<!-- Launch UAV -->
-    <include file="$(find med_uav_description)/launch/gazebo_bebop.launch">
+    <include file="$(find med_uav_description)/launch/bebop_empty.launch">
         <arg name="x" default="0.0"/>
         <arg name="y" default="-1.5"/>
         <arg name="yaw" default="0.0"/>
         <arg name="wind_force" value="0.0"/>
-        <arg name="wind_start" default="5.0"/>
-        <arg name="wind_duration" default="10.0"/>
+        <arg name="wind_start" default="0.0"/>
+        <arg name="wind_duration" default="0.0"/>
         <arg name="wind_direction_x" default="0.0"/>
         <arg name="wind_direction_y" default="0.0"/>
-        <arg name="wind_direction_z" default="1.0"/>
+        <arg name="wind_direction_z" default="0.0"/>
+    </include>
+
+    <!-- Include PIPE -->
+    <include file="$(find larics_gazebo_worlds)/models/pipe/spawn_pipe.launch">
+        <arg name="x" default="0.0"/>
+        <arg name="y" default="0.0"/>
+        <arg name="z" default="0.0"/>
+        <arg name="pipe_name" default="pipe2"/>
     </include>
 
     <group ns="bebop">
@@ -29,18 +37,6 @@
         <!--node pkg="med_uav_control" type="horizontal_ctl.py" name="horizontal_ctl" output="screen"/-->
 
         <node pkg="med_uav_control" type="trajectory_to_position_reference.py" name="trajectory_to_position_reference" output="screen" />
-    </group>
-
-    <!-- Run rosserial_arduino for rc joystick -->
-    <group if="$(arg rc_joy)">
-        
-        <include file="$(find med_uav_control)/launch/rc_joystick.launch">
-            <arg name="port" default="/dev/ttyUSB0" />
-            <arg name="baud" default="115200" />    
-        </include>
-
-        <node pkg="med_uav_control" type="futaba_to_joy.py" name="futaba_to_ros" output="screen"/>
-
     </group>
     
     <!-- Run normal joy node for normal joystick -->
@@ -62,9 +58,6 @@
     <!--node name="fpv_node" pkg="rqt_image_view" type="rqt_image_view" output="screen"/-->
         
     <include file="$(find med_uav_control)/launch/bebop_joy_override.launch"/>
-
-    <node pkg="rosbag" type="record" name="record_experiment"
-       args="record -o /home/developer/catkin_ws/src/med_uav_control/experiments/$(arg user_id)_$(arg run) /bebop/odometry /joy /start_time /end_time /euler_ref /pos_ref" if="$(arg record_experiment)" />
 
     
 </launch>
