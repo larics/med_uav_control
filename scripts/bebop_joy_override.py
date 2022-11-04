@@ -20,7 +20,6 @@ class BebopJoyOverride:
         else:
             # Publisher to ardrone cmd_vel topic, can be run in namespace
             self.cmdVelPub = rospy.Publisher("cmd_vel_real", Twist, queue_size=1)
-
             rospy.Subscriber("cmd_vel", Twist, self.CmdVelCallback, queue_size=1)
 
         self.takeoffPub = rospy.Publisher("takeoff", Empty, queue_size=1)
@@ -80,7 +79,7 @@ class BebopJoyOverride:
         if self.use_sim_bebop:
             
             # Empirically determined scale factors --> larger --> agressive 
-            rp_scale_fact = 0.15; yaw_scale_fact = 0.06; z_scale_fact = 0.01; 
+            rp_scale_fact = 0.1; yaw_scale_fact = 0.03; z_scale_fact = 0.01; 
 
             reverse = False
             if reverse:

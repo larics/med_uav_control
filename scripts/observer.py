@@ -5,7 +5,7 @@ import rospy
 import rosbag
 import datetime
 import copy
-from std_msgs.msg import Float32, Time
+from std_msgs.msg import Float32, Time, String
 from sensor_msgs.msg import Joy
 from nav_msgs.msg import Odometry
 
@@ -14,7 +14,6 @@ from nav_msgs.msg import Odometry
 # https://answers.ros.org/question/52773/record-with-rosbag-from-launch-file/
 
 # TODO: 
-# - Add exporting to CSV
 # - Add timer and watching time 
 # - Add sucessful recording of full bag file 
 
@@ -27,18 +26,20 @@ class Observer:
         rospy.Subscriber("/bebop/odometry", Odometry, self.OdometryCallback, queue_size=1)
         self.end_time_pub   = rospy.Publisher("/end_time",    Time, queue_size=1)
         self.start_time_pub = rospy.Publisher("/start_time",  Time, queue_size=1)
-
+        self.duration_pub = rospy.Publisher("/duration", String, queue_size=1)
 
         self.current_pos_x = 0; self.current_pos_y = 0; 
+        
         # Define goal pose
         self.goal_pos_x = 9.0
         self.timeout = 120
+
         # Y limits 
         self.y_upper_limit = -1.0
         self.y_lower_limit = -3.0
         self.x_upper_limit = 1.0 
         self.x_lower_limit = -1.0
-        
+
         # Start time
         self.start_time = rospy.Time.now().to_sec(); now = datetime.datetime.now(); 
 
@@ -91,12 +92,13 @@ class Observer:
 
                 # Check how much time has passed
                 time_elapsed = rospy.Time.now().to_sec() - self.start_time
-
-                #rospy.logdebug("start_condition: {}".format(start_condition))
-                #rospy.logdebug("end_condition: {}".format(end_condition))
                 
                 rospy.logdebug("elapsed: {}".format(time_elapsed))
                 rospy.logdebug("{}".format(convert(time_elapsed)))
+
+                duration_msg = String()
+                duration_msg.data = "{}".format(convert(time_elapsed))
+                self.duration_pub.publish(duration_msg)
 
                 if start_condition and not self.start_published: 
                     
