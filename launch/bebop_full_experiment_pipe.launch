@@ -49,8 +49,7 @@
     </group>
 
     <!-- Record bag for experiment -->
-    <!--group if="$(arg run_experiment)"!-->
-    <node name="observer" pkg="med_uav_control" type="observer.py" output="screen"></node>
+    <node name="race_observer" pkg="med_uav_control" type="race.py" output="screen"></node>
 
     <!--/group!-->
 
