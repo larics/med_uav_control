@@ -79,9 +79,9 @@ class BebopJoyOverride:
         if self.use_sim_bebop:
             
             # Empirically determined scale factors --> larger --> agressive 
-            rp_scale_fact = 0.3; yaw_scale_fact = 0.05; z_scale_fact = 0.05; 
+            rp_scale_fact = 0.3; yaw_scale_fact = 0.05; z_scale_fact = 0.025; 
 
-            reverse = False
+            reverse = True
             if reverse:
                 reverse_dir = -1
             else:
@@ -89,7 +89,7 @@ class BebopJoyOverride:
 
 
             self.eulerRef.x     = self.joyData.axes[2]  * rp_scale_fact * reverse_dir
-            self.eulerRef.y     = self.joyData.axes[3]  * rp_scale_fact * reverse_dir
+            self.eulerRef.y     = self.joyData.axes[3]  * rp_scale_fact 
             self.eulerRef.z     += self.joyData.axes[0] * yaw_scale_fact
             self.posRef.z       += self.joyData.axes[1] * z_scale_fact
             self.eulerRefPub.publish(self.eulerRef)

@@ -54,5 +54,8 @@
     <!-- Run fpv --> 
     <include file="$(find uav_ar_gui)/launch/uav_ar_gui.launch"/>
 
+    <!-- Run Leaderboard -->
+    <include file="$(find uav_ar_gui)/launch/monitor_results.launch"/>
+
     
 </launch>

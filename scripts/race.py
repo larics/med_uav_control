@@ -52,17 +52,16 @@ class Race:
         # Open database
         try:
             path_to_db = "/home/developer/catkin_ws/src/med_uav_control/db"
-            self.db_conn = sqlite3.connect('{}/test_database.db'.format(path_to_db)) 
+            self.db_conn = sqlite3.connect('{}/race.db'.format(path_to_db)) 
 
         except Exception as e:
             rospy.logwarn("{}".format(str(e)))
 
         self.c = self.db_conn.cursor()
+
         # Check if table exists, if not -> create new one
         self.check_if_table_exists(self.c, 'RaceResults')
         self.list_db_table(self.db_conn)
-
-
         rospy.loginfo("Table is ready!")
  
         self.participant = participant
@@ -194,9 +193,6 @@ class Race:
                 if self.started: 
                     
                     race_time = rospy.Time.now().to_sec() - self.start_time.to_sec()
-
-                    if race_time > 20: 
-                        end_condition = True
 
                     # Check how much time has passed --> FIX this after fixing condition
                     duration_msg = String()
