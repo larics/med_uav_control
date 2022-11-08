@@ -7,6 +7,8 @@
     <arg name="joy_rate" default="10"/>
     <arg name="user_id" default="0"/>
     <arg name="run" default="0"/>
+    <arg name="participant" default="JohnDoe"/>
+    <arg name="email" default="john.doe@gmail.com"/>
 
 	<!-- Launch UAV -->
     <include file="$(find med_uav_description)/launch/bebop_empty.launch">
@@ -32,11 +34,6 @@
     <group ns="bebop">
         <node pkg="med_uav_control" type="height_ctl.py" name="height_ctl" output="screen"/>
         <node pkg="med_uav_control" type="attitude_ctl.py" name="attitude_ctl" output="screen"/>
-        
-        <!-- if joystick active, there's no need for position control -->
-        <!--node pkg="med_uav_control" type="horizontal_ctl.py" name="horizontal_ctl" output="screen"/-->
-
-        <node pkg="med_uav_control" type="trajectory_to_position_reference.py" name="trajectory_to_position_reference" output="screen" />
     </group>
     
     <!-- Run normal joy node for normal joystick -->
@@ -49,14 +46,13 @@
     </group>
 
     <!-- Record bag for experiment -->
-    <node name="race_observer" pkg="med_uav_control" type="race.py" output="screen"></node>
+    <node name="race_observer" pkg="med_uav_control" type="race.py" args="$(arg participant) $(arg email)" output="screen"></node>
 
-    <!--/group!-->
-
-    <!-- RUN FPV -->
-    <!--node name="fpv_node" pkg="rqt_image_view" type="rqt_image_view" output="screen"/-->
-        
+    <!-- Run joy -->        
     <include file="$(find med_uav_control)/launch/bebop_joy_override.launch"/>
+
+    <!-- Run fpv --> 
+    <include file="$(find uav_ar_gui)/launch/uav_ar_gui.launch"/>
 
     
 </launch>

@@ -79,7 +79,7 @@ class BebopJoyOverride:
         if self.use_sim_bebop:
             
             # Empirically determined scale factors --> larger --> agressive 
-            rp_scale_fact = 0.1; yaw_scale_fact = 0.03; z_scale_fact = 0.01; 
+            rp_scale_fact = 0.3; yaw_scale_fact = 0.05; z_scale_fact = 0.05; 
 
             reverse = False
             if reverse:

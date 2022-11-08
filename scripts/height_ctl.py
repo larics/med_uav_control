@@ -50,20 +50,20 @@ class HeightControl:
         #########################################################
         
         # Add parameters for vz controller
-        self.pid_vz.set_kp(75)
+        self.pid_vz.set_kp(150)
         self.pid_vz.set_ki(10)
-        self.pid_vz.set_kd(0.41472)
+        self.pid_vz.set_kd(0.0)
 
         # Add parameters for z controller
-        self.pid_z.set_kp(0.5)
-        self.pid_z.set_ki(0.125)
+        self.pid_z.set_kp(2)
+        self.pid_z.set_ki(0)
         self.pid_z.set_kd(0)
 
         #########################################################
         #########################################################
 
         self.pid_vz.set_lim_up(1400)    # max velocity of a motor
-        self.pid_vz.set_lim_low(0)      # min velocity of a motor
+        self.pid_vz.set_lim_low(-400)      # min velocity of a motor
 
         self.pid_z.set_lim_up(5)        # max vertical ascent speed
         self.pid_z.set_lim_low(-5)      # max vertical descent speed
