@@ -1,14 +1,35 @@
 <launch>
     
-    <arg name="land_index"      default="6" />
-    <arg name="takeoff_index"   default="7" />
-    <arg name="override_index"  default="4" />
+    <arg name="land_index"        default="6" />
+    <arg name="takeoff_index"     default="7" />
+    <arg name="override_index"    default="4" />
+    <arg name="flip_left_index"   default="0" />
+    <arg name="flip_right_index"  default="2" />
+    <arg name="flip_front_index"  default="3" />
+    <arg name="flip_back_index"   default="1" />
 
-    <node name="joy" pkg="joy" type="joy_node" output="screen"/>
-    <node name="tello_joy_override" pkg="med_uav_control" type="tello_joy_override.py" ns="tello" output="screen">
+
+    <node name="joy" pkg="joy" type="joy_node" ns="master" output="screen"/>
+    <node name="joy" pkg="joy" type="joy_node" ns="slave" output="screen">
+      <param name="dev"   value="/dev/input/js1"/>
+    </node>
+    <node name="tello_joy_override_master" pkg="med_uav_control" type="tello_joy_override_master.py" ns="tello" output="screen">
       <param name="tello_joy/takeoff_index"   value="$(arg takeoff_index)"/>
       <param name="tello_joy/land_index"      value="$(arg land_index)"/>
       <param name="tello_joy/override_index"  value="$(arg override_index)"/>
+      <param name="tello_joy/flip_left_index"  value="$(arg flip_left_index)"/>
+      <param name="tello_joy/flip_right_index"  value="$(arg flip_right_index)"/>
+      <param name="tello_joy/flip_front_index"  value="$(arg flip_front_index)"/>
+      <param name="tello_joy/flip_back_index"  value="$(arg flip_back_index)"/>
+    </node>
+    <node name="tello_joy_override_slave" pkg="med_uav_control" type="tello_joy_override_slave.py" ns="tello" output="screen">
+      <param name="tello_joy/takeoff_index"   value="$(arg takeoff_index)"/>
+      <param name="tello_joy/land_index"      value="$(arg land_index)"/>
+      <param name="tello_joy/override_index"  value="$(arg override_index)"/>
+      <param name="tello_joy/flip_left_index"  value="$(arg flip_left_index)"/>
+      <param name="tello_joy/flip_right_index"  value="$(arg flip_right_index)"/>
+      <param name="tello_joy/flip_front_index"  value="$(arg flip_front_index)"/>
+      <param name="tello_joy/flip_back_index"  value="$(arg flip_back_index)"/>
     </node>
 
 </launch>
